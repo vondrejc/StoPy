@@ -1,0 +1,21 @@
+*.py[cod]
+
+# Eclipse
+.project
+.pydevproject
+
+# Sphinx documentation
+docs/_build/
+
+# auxiliary
+test_*
+*.eps
+*.pdf
+*.pkl
+*.txt
+.settings/*
+output/*
+*temp*
+*~
+_*
+old/*
