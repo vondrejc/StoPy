@@ -106,6 +106,27 @@ class Quad_rectangular(Quad):
         # return no. of points
         return np.prod(self.p_int)
 
+class Quad_MC(Quad):
+    def __init__(self, q, p_int, name=''):
+        self.name=name
+        self.q = q # GPC
+        self.p_int = int(p_int)
+
+    def get_integration(self):
+        smpl = self.q.samples(n=self.p_int)
+        return smpl.val, np.ones(smpl.n, dtype=np.float)/smpl.n
+
+    def get_npoints(self):
+        return self.p_int
+
+    def __str__(self):
+        ss="Class : {0}\n".format(self.__class__.__name__)
+        ss+='    name = {0}\n'.format(self.name)
+        ss+='    dim = {0}\n'.format(self.q.dim)
+        ss+='    no. of points = {0}\n'.format(self.get_npoints())
+        return ss
+
+
 class Quad_product(Quad):
     def __init__(self, quads):
         self.name=quads[0].name
@@ -173,6 +194,7 @@ class Quad_product(Quad):
 #     def get_npoints(self):
 #         pass
 
+
 if __name__=='__main__':
 #    execfile('unittests.py')
 #    for p_int in [3]:
@@ -180,8 +202,8 @@ if __name__=='__main__':
 #        ip, iw = Quad_Gauss('pt', p_int).get_integration()
 #     for n in [10]:
 #         ip, iw=Quad_rectangular('pp', n=1e2).get_integration()
-    quad=Quad_NewtonCotes(pint=[2], ns=[3])
-    print 'END'
+#     quad=Quad_NewtonCotes(pint=[2], ns=[3])
+    print('END')
 
 #     print('points\n', ip)
 #     print(ip.shape)

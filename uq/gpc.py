@@ -5,7 +5,7 @@ import warnings
 from general.base import Struct
 from general.base import Timer
 import numpy as np
-from uq.polynomials import poly, find_poly_intervals, polyval, GPCpoly
+from uq.polynomials import poly, find_poly_intervals, GPCpoly
 from uq.quadrature import Quad_Gauss, Quad_rectangular
 from uq.samples import Samples
 
@@ -164,16 +164,17 @@ class GPC(Struct, GPCpoly):
             norm*=poly[syschar].norm(order[ii])
         return norm
 
-    def get_poly(self):
+    def get_poly(self, threshold_zeros=1e-14, remove_zeros=True):
         if self.dim>1:
             raise NotImplementedError("Only for 1d polynomials!")
         if self.pchars in ['u']:
             raise NotImplementedError()
-        else:
-            poly1d=poly[self.pchars].poly
-            pn=poly1d(np.array([self.coef[ii]/self.get_norm(self.I[ii])
-                                for ii in range(self.ndofs)]).squeeze())
-            return pn
+
+        poly1d=poly[self.pchars].poly
+        coef = [self.coef[ii]/self.get_norm(self.I[ii]) for ii in range(self.ndofs)]
+        pn=poly1d(np.array(coef, dtype=np.float).squeeze())
+        pn=pn.trim(tol=threshold_zeros)
+        return pn
 
     def process_integration(self, quad, **pars):
         # for general quad it returns integration points
@@ -311,14 +312,17 @@ class GPC(Struct, GPCpoly):
             values to evaluate pdf
         """
         if method in [1, 'direct'] and self.dim==1: # direct method in dim=1
+            qs=np.atleast_1d(qs)
             pdf=np.zeros(qs.size) # preallocation
             poldist=self.get_dist(self.pchars)
             pn=self.get_poly()
             dpn=pn.deriv()
             for ii, x in enumerate(qs.T):
-                ints=find_poly_intervals(pn-x)
-                val=poldist[0].pdf(ints)/polyval(dpn, ints)
-                pdf[ii]=np.sum(np.array([-1., 1.])*val)
+                r = (pn-x).roots()
+                r=np.unique(np.extract(np.abs(r.imag)<1e-14, r).real)
+                val=poldist[0].pdf(r)/np.abs(dpn(r))
+                pdf[ii]=np.sum(val)
+
         elif method in ['mc']:
             assert(self.rdim==1)
             assert(smpl_coef*qs.size<1e8)
@@ -330,7 +334,7 @@ class GPC(Struct, GPCpoly):
             pdf*=1./smpl.n/(qs[1]-qs[0])
         else:
             raise NotImplementedError("method ({0}), dim ({1})".format(method, self.dim))
-        return pdf
+        return pdf.squeeze()
 
     def cdf(self, xi, method='sampling', nsmpl=1e6): # EXPERIMENTAL
         """Computes the joint CDF of the GPC germ."""
@@ -342,7 +346,7 @@ class GPC(Struct, GPCpoly):
             for ii, x in enumerate(xi.T):
                 ints=find_poly_intervals(pn-x)
                 val=poldist[0].cdf(ints)
-                cdf[ii]=np.sum(np.array([-1., 1.])*val)
+                cdf[ii]=np.sum(np.array([-1., 1.]).dot(val))
         elif method in [0, 'sampling']: # sampling method
             ip, iw=Quad_rectangular(self.pchars, n=nsmpl).get_integration()
             vals=self.__call__(ip)
@@ -602,16 +606,22 @@ def com_vals(A, B):
     return np.vstack([Cmean, Cleft, Crigh])
 
 if __name__=='__main__':
-    execfile('../test_gpc2.py')
-#     pchars = 'p'
-#     gpc = GPC(pchars, p=2)
-#
-#     ip, iw = Quad_Gauss('u', p=10).get_integration()
-#     rv_str = poly[pchars].rv
-#     from randfield import rvs
-#     rv = rvs[rv_str]
-#     print rv
-#     print rv.fun.cdf(ip)
-#     print val
+    print('testing gpc...')
+    from uq.dist import Dists
+    import matplotlib.pylab as pl
 
-    print('END')
+    q0_dist=Dists(keys=['norm'], args=[()], kargs=[{'mean': .0, 'var': 1.}])
+    q0=GPC('h', p=[2], rshape=(1,))
+    q0.expand(q0_dist) # q0.project(lambda xi: p.q0.var**0.5*xi, p_int=2)
+    q1=GPC('h', p=[3], rshape=(1,))
+#     q1.coef=np.array([[0,3,0.,1.]]).T
+    q1.coef=np.array([[0,1.5,0.,.5]]).T
+
+    pl.figure()
+    qpl=np.linspace(-4, 4, 1e3)
+    pl.plot(qpl, q0_dist.pdf(qpl), 'b-', label='pdf')
+    pl.plot(qpl, q0.pdf(qpl), 'r--', label='gpc - direct')
+    pl.plot(qpl, q1.pdf(qpl), 'r--', label='gpc2 - direct')
+    pl.legend(loc='best')
+    pl.savefig('test_fig.eps')
+    print('...end')

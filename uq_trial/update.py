@@ -45,7 +45,7 @@ def mmse_update(Yfun, Xfun, phi, quad, debug=False, solver='lu'): # delete ???
         raise NotImplementedError()
 
     if debug:
-        print 'condition number =', np.linalg.cond(A)
+        print('condition number = {}'.format(np.linalg.cond(A)))
     phi.set_coef(phicoef) # setting coefficients to mappings
     return phi
 
@@ -66,7 +66,7 @@ def spectral_Kalman(xf, y_truth, Yfun, u, err, correct_var=True):
         assert(norm(xa0.variance()-xa.variance())<1e-14)
         Cxa=xa.variance()
         sqrtCxa=matrix_fun(Cxa, lambda x: x**0.5, nulzero=False)
-        print norm(Cxa-sqrtCxa.dot(sqrtCxa))
+        print(norm(Cxa-sqrtCxa.dot(sqrtCxa)))
         assert(norm(Cxa-sqrtCxa.dot(sqrtCxa))<1e-14)
     else:
         return xa
@@ -240,7 +240,7 @@ def get_phi_pdf(ys, prior, err, S, quad=None):
         pa_mean[ii]=pam
         pav, pav_err=sp_quad(lambda q:(q-pam)**2*err.pdf(y-S(q))*prior.pdf(q)/mean,-np.inf, np.inf)
         pa_var[ii]=pav
-        print 'errors', mean_err, pam_err, pav_err
+        print('errors = {0}; {1}; {2}'.format(mean_err, pam_err, pav_err))
 
     return pa_mean, pa_var
 
@@ -277,4 +277,4 @@ class MMSESimple_experimental(MMSESimple):
         return covar
 
 if __name__=='__main__':
-    execfile('../lorentz.py')
+    exec('../lorentz.py')

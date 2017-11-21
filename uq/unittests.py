@@ -19,13 +19,13 @@ class Test(unittest.TestCase):
         for gpc in [GPC('ut', p=2*[4], p_max=4),
                     GPC('pu', p=2*[2]),
                     GPC('hu', p=2*[2])]:
-            self.assertTrue(isinstance(gpc.__str__(), basestring))
+            self.assertTrue(isinstance(gpc.__str__(), str))
             func=lambda x: 100.*x[0]**2*x[1]**2
             gpc.project(func)
             x=np.random.random([2, 5])
             val=norm(func(x)-gpc(x))
             self.assertAlmostEqual(0, val, msg='GPC', delta=1e-12)
-            self.assertTrue(isinstance(gpc.__str__(), basestring))
+            self.assertTrue(isinstance(gpc.__str__(), str))
         for gpc in [GPC('ptu', p=3*[4], p_max=7),
                     GPC('tuh', p=3*[4], p_max=7)]:
             func=lambda x: 100.*x[0]**2*x[1]**3*x[2]**2
@@ -33,7 +33,7 @@ class Test(unittest.TestCase):
             x=np.random.random([3, 5])
             val=norm(func(x)-gpc(x))
             self.assertAlmostEqual(0, val, msg='GPC', delta=1e-12)
-            self.assertTrue(isinstance(gpc.__str__(), basestring))
+            self.assertTrue(isinstance(gpc.__str__(), str))
         # testing approximation of normal distribution with Hermite polynomials
         dist=stats.norm(loc=1., scale=2.)
         gpc=GPC(pchars='h', p=1)
@@ -42,11 +42,11 @@ class Test(unittest.TestCase):
         gpc_st=gpc.stats()
         for ii in range(2):
             self.assertAlmostEqual(dist_st[ii], gpc_st[ii], delta=1e-12)
-        self.assertTrue(isinstance(gpc.__str__(), basestring))
+        self.assertTrue(isinstance(gpc.__str__(), str))
         print('...OK')
 
     def test_sparse_integration(self):
-        print 'Testing uq.quadrature (sparse integration)...'
+        print('Testing uq.quadrature (sparse integration)...')
         # testing projection
         for gpc in [GPC('ptu', p=3*[4], p_max=7),
                     GPC('tuh', p=3*[4], p_max=7)]:
@@ -67,7 +67,7 @@ class Test(unittest.TestCase):
                 return summ
 
             dim=4
-            quad=Quad_Gauss(pchars=dim*'p', p_int=dim*[3], name='test', grid='tensor')
+            quad=Quad_Gauss(pchars=dim*'p', p_int=dim*[3], name='test_fig', grid='tensor')
             ipf, iwf=quad.get_integration()
             ipf=ipf.T
 
@@ -80,7 +80,7 @@ class Test(unittest.TestCase):
         print('Testing uq.quadrature....')
         for quad in [Quad_Gauss('pth', p_int=[2, 3, 4]),
                      Quad_Gauss('pth', p_int=3)]:
-            self.assertTrue(isinstance(quad.__str__(), basestring))
+            self.assertTrue(isinstance(quad.__str__(), str))
             ip, iw=quad.get_integration()
             self.assertEqual(len(quad.pchars), ip.shape[0], msg=quad.__str__())
             self.assertEqual(iw.size, ip.shape[1], msg=quad.__str__())
@@ -113,9 +113,9 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(0, norm(gpc.covariance()-np.diag(var)), msg='GPC')
         smpl_dist=dist.samples(n=1e3)
         smpl_gpc=gpc.samples(n=1e3)
-        self.assertTrue(isinstance(smpl_dist.__str__(), basestring))
-        self.assertTrue(isinstance(smpl_gpc.__str__(), basestring))
-        self.assertTrue(isinstance(dist.__str__(), basestring))
+        self.assertTrue(isinstance(smpl_dist.__str__(), str))
+        self.assertTrue(isinstance(smpl_gpc.__str__(), str))
+        self.assertTrue(isinstance(dist.__str__(), str))
         print('...OK')
 
 #    def test_samples(self):

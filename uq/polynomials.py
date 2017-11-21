@@ -122,33 +122,45 @@ class GPCpoly():
 
 def find_poly_intervals(p):
     """
-    ????
+    Find the intervals of 1D-polynomial (numpy.polynomial) where the polynomial is negative.
     """
+    assert(np.abs(p.coef[-1]) > 1e-14)
     r=p.roots()
     # remove imaginary roots, multiple roots, and sort
     r=np.unique(np.extract(np.abs(r.imag)<1e-14, r).real)
 
-    sign_pinf=np.sign(p.coef[-1]) # sign at infinity
-    sign_minf=(-1)**p.degree()*sign_pinf # sign at minus infinity
+    ints = []
+    for ii in range(r.size-1):
+        rmean = 0.5*(r[ii]+r[ii+1])
+        if p(rmean)<0:
+            ints.append([r[ii],r[ii+1]])
 
-    if sign_pinf<0:
-        r=np.hstack([r, np.inf])
-    if sign_minf<0:
-        r=np.hstack([-np.inf, r])
+    sign_pinf = np.sign(p.coef[-1])
+    if p.coef[-1] < 0: # polynomial sign at plus infinity
+        ints.append([r[-1], np.inf])
+    if (-1)**p.degree()*sign_pinf<0: # polynomial sign at minus infinity
+        ints.append([-np.inf, r[0]])
 
-    return r.reshape([-1, 2])
+    return np.array(ints)
 
-def polyval(pn, xi):
-    val=np.zeros_like(xi.flatten())
-    sign_pinf=np.sign(pn.coef[-1]) # sign at infinity
-    sign_minf=(-1)**pn.degree()*sign_pinf # sign at minus infinity
-    indp=np.argwhere(xi.flatten()==np.inf).squeeze()
-    val[indp]=sign_pinf*np.inf # sign at infinity
-    indm=np.argwhere(xi.flatten()==-np.inf).squeeze()
-    val[indm]=sign_pinf*np.inf # sign at infinity
-    indother=np.setdiff1d(np.arange(xi.size), np.hstack([indp, indm]))
-    val[indother]=pn(xi.flatten()[indother])
-    return val.reshape(xi.shape)
+# def polyval(pn, xi):
+#     """
+#     Evaluate a polynomial pn at points xi.
+#     """
+#     val=np.zeros_like(xi.flatten())
+#     sign_pinf=np.sign(pn.coef[-1]) # sign at infinity
+#     sign_minf=(-1)**pn.degree()*sign_pinf # sign at minus infinity
+#     indp=np.argwhere(xi.flatten()==np.inf).squeeze()
+#     val[indp]=sign_pinf*np.inf # sign at infinity
+#     indm=np.argwhere(xi.flatten()==-np.inf).squeeze()
+#     val[indm]=sign_pinf*np.inf # sign at infinity
+#     indother=np.setdiff1d(np.arange(xi.size), np.hstack([indp, indm]))
+#     val[indother]=pn(xi.flatten()[indother])
+#     return val.reshape(xi.shape)
 
 if __name__=='__main__':
-    execfile('../test_gpc.py')
+#     execfile('../test_gpc.py')
+    pol=nppol.Polynomial([0,-1,1,2,3,4,1])
+    ints=find_poly_intervals(pol)
+    print(ints)
+    print('end')
