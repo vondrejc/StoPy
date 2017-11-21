@@ -4,14 +4,11 @@ import scipy.optimize
 
 import numpy as np
 import scipy.linalg as splin
-# import scipy.sparse as spsp
 from uq.gpc import LinOper, GPC
 from uq.operators import matrix_fun
-from uq.update import MMSESimple
-from uq_trial.simple import Simple
-# from uq.quadrature import Quad_Gauss
 from scipy.integrate import quad as sp_quad
 import warnings
+
 
 def mmse_update(Yfun, Xfun, phi, quad, debug=False, solver='lu'): # delete ???
     warnings.warn("Will be deleted")
@@ -23,11 +20,11 @@ def mmse_update(Yfun, Xfun, phi, quad, debug=False, solver='lu'): # delete ???
     phibasY=phi.eval_all_basis(Yxi)
     wphibasY=phibasY*iw
 
-    if isinstance(phi, Simple):
-        Adiag=np.einsum('ikl,ikl->i', phibasY, wphibasY) # linear system
-        B=np.einsum('ik,jlk->ji', Xxi, wphibasY) # right-hand sides
-        phicoef=B/np.atleast_2d(Adiag).T # solving linear system
-    elif isinstance(phi, GPC):
+#     if isinstance(phi, Simple):
+#         Adiag=np.einsum('ikl,ikl->i', phibasY, wphibasY) # linear system
+#         B=np.einsum('ik,jlk->ji', Xxi, wphibasY) # right-hand sides
+#         phicoef=B/np.atleast_2d(Adiag).T # solving linear system
+    if isinstance(phi, GPC):
         A=np.einsum('ik,jk->ij', phibasY, wphibasY) # linear system
         B=np.einsum('ik,jk->ji', Xxi, wphibasY) # right-hand sides
         if solver in ['lu']:
@@ -229,52 +226,25 @@ class MMSE_update_cov(MMSEnonlinear): # delete ???
             print('iter_fun={0}, iter_jac={1}'.format(self.iter_fun, self.iter_jac))
         return self.phi
 
-def get_phi_pdf(ys, prior, err, S, quad=None):
-    assert(prior.var[0]==1.)
-
+def get_phi_pdf(ys, prior, err, S, tol=None):
     pa_mean=np.empty(ys.shape[0])
     pa_var=np.empty(ys.shape[0])
+    if tol is None:
+        tol=1e-8
+
     for ii, y in enumerate(ys):
-        mean, mean_err=sp_quad(lambda q:err.pdf(y-S(q))*prior.pdf(q),-np.inf, np.inf)
-        pam, pam_err=sp_quad(lambda q:q*err.pdf(y-S(q))*prior.pdf(q)/mean,-np.inf, np.inf)
+        mean, mean_err=sp_quad(lambda q:err.pdf(y-S(q))*prior.pdf(q),-np.inf, np.inf,
+                               epsabs=tol, epsrel=tol)
+        pam, pam_err=sp_quad(lambda q:q*err.pdf(y-S(q))*prior.pdf(q)/mean,-np.inf, np.inf,
+                             epsabs=tol, epsrel=tol)
         pa_mean[ii]=pam
-        pav, pav_err=sp_quad(lambda q:(q-pam)**2*err.pdf(y-S(q))*prior.pdf(q)/mean,-np.inf, np.inf)
+        pav, pav_err=sp_quad(lambda q:(q-pam)**2*err.pdf(y-S(q))*prior.pdf(q)/mean,-np.inf, np.inf,
+                             epsabs=tol, epsrel=tol)
         pa_var[ii]=pav
         print('errors = {0}; {1}; {2}'.format(mean_err, pam_err, pav_err))
 
     return pa_mean, pa_var
 
-class MMSESimple_experimental(MMSESimple):
-    def covariance(self, q0, mean=0., threshold=1e-14, method=1, yhat=None):
-        Y = self.Y
-        ip, iw = self.quad.get_integration()
-        (rhs, lhs)=(0.,0.)
-        if method in ['exp',0]:
-            for ii in range(iw.size):
-                ipi = ip[:,ii]
-                E_S_q0_ipi = self.E.pdf(Y(ipi))
-                if E_S_q0_ipi > threshold:
-                    rhs += iw[ii]*(q0(ipi)-mean)**2*E_S_q0_ipi
-                    lhs += iw[ii]*E_S_q0_ipi*np.e
-        elif method in ['quad',1]:
-            for ii in range(iw.size):
-                ipi = ip[:,ii]
-                Yipi=Y(ipi)
-                E_S_q0_ipi = self.E.pdf(Yipi)
-                eta = Yipi-yhat
-                if E_S_q0_ipi > threshold:
-                    q0mean=q0(ipi)-mean
-                    rhs += iw[ii]*np.outer(q0mean, q0mean)*E_S_q0_ipi
-                    lhs += iw[ii]*E_S_q0_ipi
-
-        elif method in ['riemann',2]:
-            raise NotImplementedError()
-        else:
-            raise NotImplementedError()
-
-        covar = rhs/lhs
-        print('rhs={0}; lhs={1}'.format(rhs, lhs))
-        return covar
 
 if __name__=='__main__':
     exec('../lorentz.py')
