@@ -142,7 +142,7 @@ class Struct(object):
 
     def __add__(self, other):
         new = copy(self)
-        for key, val in other.__dict__.iteritems():
+        for key, val in other.__dict__.items():
             if hasattr(new, key):
                 sval = getattr(self, key)
                 if issubclass(sval.__class__, Struct) and \
@@ -159,7 +159,7 @@ class Struct(object):
 
     def str_all(self):
         ss = "%s\n" % self.__class__
-        for key, val in self.__dict__.iteritems():
+        for key, val in self.__dict__.items():
             if issubclass(self.__dict__[key].__class__, Struct):
                 ss += "  %s:\n" % key
                 aux = "\n" + self.__dict__[key].str_all()
