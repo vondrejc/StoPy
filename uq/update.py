@@ -56,8 +56,8 @@ class PCE_CE():
         return val
 
 
-class SimpleCE():
-    # Simple conditional expectation
+class ConditionedExpectation():
+    # Conditioned expectation
     def __init__(self, Y, E, yhat, quad, theta, **kwargs):
         self.Y=Y
         self.E=E
