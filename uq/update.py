@@ -72,19 +72,15 @@ class ConditionedExpectation():
     def __call__(self, X, threshold=1e-14, debug=True):
         if isinstance(self.E, Dists): # old method (working for \xi - mean and cov)
             method_str='Dist'
-            Y=self.Y
-            yhat=self.yhat
-            Ediff=self.Ediff
-            assert(self.E.dim==1)
             ip, iw = self.quad.get_integration()
             lhs=0.
-            rhs=np.zeros_like(X(ip[:,0],yhat))
+            rhs=np.zeros_like(X(ip[:,0],self.yhat))
+            eta = None
+            Yipi=self.Y(ip)
             nthreshold=0
             for ii in range(iw.size):
                 ipi = ip[:,ii]
-                Yipi=Y(ipi)
-                likelihood = self.E.pdf(Yipi)[0]
-                eta = None
+                likelihood = self.E.pdf(self.yhat-Yipi[:,ii])[0]
                 if likelihood > threshold:
                     nthreshold += 1
                     rhs += iw[ii]*X(ipi, eta)*likelihood

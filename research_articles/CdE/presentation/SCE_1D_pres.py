@@ -1,5 +1,5 @@
 """
-paper: Simple conditional expectation
+paper: Conditioned expectation
 """
 
 from general import Struct
@@ -7,13 +7,13 @@ import numpy as np
 from uq.dist import Dists
 from uq.gpc import GPC
 from uq.quadrature import Quad_Gauss, Quad_rectangular
-from uq.update import PCE_CE, SimpleCE
+from uq.update import PCE_CE, ConditionedExpectation
 from uq_trial.update import get_phi_pdf
 import os
 import sys
 
 
-problem=0
+problem=1
 
 if __name__=='__main__':
     debug=0
@@ -84,7 +84,7 @@ print('mean={0}; var={1}'.format(mean_pdf, var_pdf))
 
 print('\n== MEAN by Simple conditional expectation ==================')
 quad=Quad_rectangular(pchars=Q.pchars, p_int=p.sce.pint, name='')
-sce=SimpleCE(Y=Y, E=E, yhat=y_true, quad=quad, theta=theta)
+sce=ConditionedExpectation(Y=Y, E=E, yhat=y_true, quad=quad, theta=theta)
 mean=sce.mean(Q)
 print('mean = {0}; Quad_rectangular'.format(mean))
 
@@ -120,7 +120,7 @@ covar_simple=np.zeros_like(ysimple)
 quad=Quad_rectangular(pchars=Q.pchars, p_int=p.sce.pint, name='')
 
 for ii, y in enumerate(ysimple):
-    sce=SimpleCE(Y=Y, E=E, yhat=y, quad=quad, theta=theta)
+    sce=ConditionedExpectation(Y=Y, E=E, yhat=y, quad=quad, theta=theta)
     mean_simple[ii]=sce.mean(Q)
     covar_simple[ii]=sce.covariance(Q, mean=mean_simple[ii])
 
@@ -141,8 +141,8 @@ ylabel=r'Measurement $y$ / pdf of prior (dotted lines)'
 fig=pl.figure(figsize=parf['figsize'], dpi=parf['dpi'])
 pl.plot(qpl, p.Y_Q(qpl), 'k-', label='observation operator $Y_Q(q)$')
 ypl=np.linspace(*p.fig.yran, num=1e3)
-pl.plot(2*E.pdf(ypl), ypl, 'c:', label='$2f_{E}(y)$ --- pdf of error')
-pl.plot(qpl, 5*Q.pdf(qpl), 'b:', label='$5f_Q(q)$ --- pdf of prior')
+pl.plot(2*E.pdf(ypl), ypl, 'c:', label='PDF of error')
+pl.plot(qpl, 5*Q.pdf(qpl), 'b:', label='PDF of prior')
 pl.xlim(*p.fig.xran)
 pl.ylim(*p.fig.yran)
 pl.grid()
@@ -195,8 +195,8 @@ if __name__=='__main__':
 ## MEAN by Simple CE: ###############################################################################
 fig=pl.figure(figsize=parf['figsize'], dpi=parf['dpi'])
 pl.plot(qpl, p.Y_Q(qpl), 'k-', label='observation operator $Y_Q(q)$')
-pl.plot(2*E.pdf(ypl), ypl, 'c:', label='$2f_{E}(y)$ --- pdf of error')
-pl.plot(qpl, 5*Q.pdf(qpl), 'b:', label='$5f_Q(q)$ --- pdf of prior')
+pl.plot(2*E.pdf(ypl), ypl, 'c:', label='PDF of error')
+pl.plot(qpl, 5*Q.pdf(qpl), 'b:', label='PDF of prior')
 pl.plot(mean_pdf, ysimple, 'b+-', label=label_mean, linewidth=2)
 pl.xlabel(xlabel)
 pl.ylabel(ylabel)
@@ -231,7 +231,7 @@ pl.legend(loc='best')
 filen='figures/fig1d_{0}_cov1.pdf'.format(p.name)
 pl.savefig(filen, dpi=parf['dpi'], pad_inches=parf['pad_inches'], bbox_inches='tight')
 
-pl.plot(covar_simple, ysimple, 'rx--', label='$\Phi_{\bar{Q}\otimes\bar{Q}|Y_E}(y)$')
+pl.plot(covar_simple, ysimple, 'rx--', label='$\Phi_{\overline{Q}\otimes\overline{Q}|Y_E}(y)$')
 pl.legend(loc='best')
 filen='figures/fig1d_{0}_cov2.pdf'.format(p.name)
 pl.savefig(filen, dpi=parf['dpi'], pad_inches=parf['pad_inches'], bbox_inches='tight')

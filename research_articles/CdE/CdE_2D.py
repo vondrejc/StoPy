@@ -22,14 +22,12 @@ else:
 debug=1
 # DEFINITION OF PARAMETERS ##############################
 if debug:
-    p=Struct(CdE=Struct(pint=1e2,
-                        ngauss=15,
-                        nMC=1e2),
+    p=Struct(CdE=Struct(ngauss=5,
+                        nMC=1e1),
              fig=Struct(Npl=10)
              )
 else:
-    p=Struct(CdE=Struct(pint=1e6,
-                        ngauss=95,
+    p=Struct(CdE=Struct(ngauss=95,
                         nMC=1e6),
              fig=Struct(Npl=int(2e2)))
 
@@ -66,13 +64,13 @@ for pord in [1,5,10,15,20]:
     phis.append(phi)
 
 print('\n== MEAN by Conditioned expectation ==================')
-quad=Quad_rectangular(pchars=Q.pchars, p_int=p.CdE.pint, name='')
+quad=Quad_rectangular(pchars=Q.pchars, p_int=p.CdE.ngauss, name='')
 CdE=ConditionedExpectation(Y=Y, E=E, yhat=y_true, quad=quad, theta=theta)
 mean=CdE.mean(Q)
 print('mean = {0}; quadrature rectangular\n'.format(mean))
 
-for quad_alternative in [Quad_Gauss(pchars=Q.pchars, p_int=15, name='Gauss'),
-                         Quad_MC(Q, p_int=1e2, name='MonteCarlo')]:
+for quad_alternative in [Quad_Gauss(pchars=Q.pchars, p_int=p.CdE.ngauss, name='Gauss'),
+                         Quad_MC(Q, p_int=p.CdE.nMC, name='MonteCarlo')]:
     CdE=ConditionedExpectation(Y=Y, E=E, yhat=y_true, quad=quad_alternative, theta=theta)
     mean_alternative=CdE.mean(Q)
     print('mean = {0}; quadrature {1}\n'.format(mean_alternative, quad_alternative.name))

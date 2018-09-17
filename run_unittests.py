@@ -13,7 +13,7 @@ class Test_main(unittest.TestCase):
         pass
 
     def test_tutorials(self): # test tutorials
-        dirs = ['research_articles/SCE/']
+        dirs = ['research_articles/CdE/']
         for dr in dirs:
             for filen in os.listdir(dr):
                 pth = os.path.join(dr, filen)

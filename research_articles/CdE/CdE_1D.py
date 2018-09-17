@@ -13,7 +13,7 @@ import os
 import sys
 
 
-problem=1
+problem=0
 
 if __name__=='__main__':
     debug=0
@@ -32,9 +32,9 @@ p=Struct(CdE=Struct(pint=1e4),
                     ),)
 
 if debug:
-    p+=Struct(CdE=Struct(pint=50),
+    p+=Struct(CdE=Struct(pint=35),
               bayes_pdf=Struct(tol=1e-3),
-              fig=Struct(Npl=int(50),
+              fig=Struct(Npl=int(10),
                          y_nvals=3,
                          ),)
 
