@@ -5,7 +5,10 @@ import matplotlib.pyplot as pl
 import sys
 
 
-class Stochastic_solver():
+class ForwardProblem():
+    """
+    Solver for a stochastic forward problem.
+    """
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 

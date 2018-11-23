@@ -105,9 +105,13 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(0, norm(stats[:, 1]-var), msg='Dists')
         self.assertAlmostEqual(0, norm(stats[:, 2]-np.zeros(2)), msg='Dists')
         self.assertAlmostEqual(0, norm(stats[:, 3]-np.zeros(2)), msg='Dists')
+
         gpc1=GPC('h', p=2, name='gpc1').expand(dist1, quad={'p_int': 5})
         gpc2=GPC('h', p=2, name='gpc2').expand(dist2, quad={'p_int': 5})
         gpc=gpc1.combine(gpc2)
+        gpcB=dist.to_gpc(name='gpcB', pchars=gpc.pchars, p=gpc.p)
+
+        self.assertAlmostEqual(0, gpc==gpcB, delta=1e-13)
         self.assertAlmostEqual(0, norm(gpc.mean()-loc), msg='GPC')
         self.assertAlmostEqual(0, norm(gpc.moment(1)-loc), msg='GPC')
         self.assertAlmostEqual(0, norm(gpc.covariance()-np.diag(var)), msg='GPC')

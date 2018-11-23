@@ -77,14 +77,13 @@ class ConditionedExpectation():
             rhs=np.zeros_like(X(ip[:,0],self.yhat))
             eta = None
             Yipi=self.Y(ip)
+            likelihood=self.E.pdf((self.yhat-Yipi.T).T)
             nthreshold=0
             for ii in range(iw.size):
-                ipi = ip[:,ii]
-                likelihood = self.E.pdf(self.yhat-Yipi[:,ii])[0]
-                if likelihood > threshold:
+                if likelihood[ii] > threshold:
                     nthreshold += 1
-                    rhs += iw[ii]*X(ipi, eta)*likelihood
-                    lhs += iw[ii]*likelihood
+                    rhs += iw[ii]*X(ip[:,ii], eta)*likelihood[ii]
+                    lhs += iw[ii]*likelihood[ii]
             val = rhs/lhs
         elif isinstance(self.E, GPC): # new - more general for GPC error
             method_str='GPC'

@@ -322,6 +322,7 @@ class GPC(Struct, GPCpoly):
                 r=np.unique(np.extract(np.abs(r.imag)<1e-14, r).real)
                 val=poldist[0].pdf(r)/np.abs(dpn(r))
                 pdf[ii]=np.sum(val)
+#             pdf = pdf/np.sum(pdf)
 
         elif method in ['mc']:
             assert(self.rdim==1)

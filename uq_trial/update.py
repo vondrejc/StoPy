@@ -245,6 +245,27 @@ def get_phi_pdf(ys, prior, err, S, tol=None):
 
     return pa_mean, pa_var
 
+class PostDistribution():
+    def __init__(self, y, prior, err, S, tol=None):
+        mean, mean_err=sp_quad(lambda q:err.pdf(y-S(q))*prior.pdf(q),-np.inf, np.inf,
+                               epsabs=tol, epsrel=tol)
+        self._pdf = lambda q: err.pdf(y-S(q))*prior.pdf(q)/mean
+        self._cdf = lambda q: sp_quad(lambda q: self._pdf(q),-np.inf, q, epsabs=tol, epsrel=tol)
+
+    def pdf(self, q):
+        return self._pdf(q)
+
+    def cdf(self, q):
+        val, err = self._cdf(q)
+        return val
+
+    def ppf(self, ps):
+        assert(ps.shape[0]==1)
+        x0 = np.zeros_like(ps)
+        for ii, p in enumerate(ps[0]):
+            fun = lambda q: self.cdf(q)-p
+            x0[0,ii] = scipy.optimize.brentq(fun, a=-5, b=5)
+        return x0
 
 if __name__=='__main__':
     exec('../lorentz.py')

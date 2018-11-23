@@ -74,7 +74,7 @@ class Dists(Struct):
                          args=[self.args[ii] for ii in ind],
                          kargs=[self.kargs[ii] for ii in ind])
         except:
-            raise ValueError('Wrong index (%s)!'%str(ind))
+            raise ValueError('Wrong index (%s)!'% str(ind))
 
     def __mul__(self, y):
         x=self
@@ -96,7 +96,8 @@ class Dists(Struct):
         return val
 
     def pdf(self, x):
-        x=np.atleast_2d(np.array(x))
+        if np.array(x).ndim==1:
+            x=np.atleast_2d(np.array(x).T)
         val=np.ones(x.shape[1])
         for ii in range(self.dim):
             val*=self.dists[ii].pdf(x[ii])
@@ -128,7 +129,7 @@ class Dists(Struct):
         assert(len(pchars)==self.dim)
         assert(np.array(p).size==self.dim)
         gpc=GPC(pchars=pchars[0], p=p[0]).expand(self.dists[0])
-        for ii in range(1, 3):
+        for ii in range(1, self.dim):
             gpc_next=GPC(pchars=pchars[ii], p=p[ii]).expand(self.dists[ii])
             gpc=gpc.combine(gpc_next)
 
