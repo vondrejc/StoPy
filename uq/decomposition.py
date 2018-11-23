@@ -44,15 +44,16 @@ class KL_Fourier():
             d_coor+=grid_coor[ii]**2
         return d_coor**0.5
 
-    def calc_modes(self, method=0, n_kl=None, relerr=None, relval=None,
+    def calc_modes(self, method=1, n_kl=None, relerr=None, relval=None,
                    debug=False):
         eps=5*np.finfo(float).eps
         grid_coor=Grid.get_coordinates(self.N, self.puc_size)
-        ct=Tensor(name='covar', shape=(), N=self.N, Y=self.puc_size, Fourier=False)
         covfun = lambda grid_coor: self.covfun(self.distance2origin(grid_coor))
-        ct.val= covfun(grid_coor)
+        ct=Tensor(name='covar', val=covfun(grid_coor), order=0, N=self.N,
+                  Y=self.puc_size, Fourier=False, fft_form='c', origin='c').shift()
         ct=ct.fourier()
         ct.val = ct.val.real
+
         if method in [-1]: # interpolation with trigpol
             pass
         elif method in [0]: # approximation of covariance with constant funcs.
@@ -83,7 +84,7 @@ class KL_Fourier():
         bfun=lambda xi, x: np.cos(2*np.pi*np.einsum('i,i...', xi, x))
 
         ind=np.flatnonzero(flags)
-        xi=Grid.get_xil(self.N, self.puc_size)
+        xi=Grid.get_xil(self.N, self.puc_size, fft_form='c')
         xis=Grid.get_product(xi)
         print('no. of modes = '+str(ind.size))
         self.modes=Struct(val=self.ct.val.real.flat[ind], # coef. of modes
@@ -95,8 +96,8 @@ class KL_Fourier():
             print('relerr =', 1-self.modes.val.sum()/svalD.sum())
             print('no_kl =', self.modes.n_kl)
 
-    def eval_mode(self):
-        return val
+#     def eval_mode(self):
+#         return val
 
     def get_k(self, n, N):
         k=np.zeros(self.dim)
@@ -171,8 +172,8 @@ class KL_Fourier():
         pl.show()
 
 if __name__=='__main__':
-    dim=3
-    kl=KL_Fourier(covfun=2, cov_pars={'rho':0.15}, N=15*np.ones(dim, dtype=np.int),
+    dim=2
+    kl=KL_Fourier(covfun=2, cov_pars={'rho':0.15}, N=11*np.ones(dim, dtype=np.int),
                   puc_size=np.ones(dim))
 #     kl.calc_modes(relval=1e-1)
     kl.calc_modes(relerr=0.1)
