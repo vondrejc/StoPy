@@ -44,6 +44,10 @@ class Samples(Struct):
     def map(self, fun, fun_name='F'):
         return Samples(val=fun(self.val), name='{0}({1})'.format(fun_name, self.name))
 
+    def pdf(self, qs, bw_method=None):
+        kernel = st.gaussian_kde(self.val, bw_method=bw_method)
+        return kernel(qs)
+
     def plot(self):
         if self.dim>2:
             raise NotImplementedError()
