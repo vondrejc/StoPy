@@ -19,7 +19,7 @@ else:
     debug=1
     sys.stdout = open(os.devnull, 'w')
 
-debug=1
+# debug=1
 # DEFINITION OF PARAMETERS ##############################
 if debug:
     p=Struct(CdE=Struct(ngauss=5,
@@ -144,26 +144,12 @@ pl.savefig(fname, dpi=parf['dpi'], pad_inches=parf['pad_inches'], bbox_inches='t
 ## 3: posterior distribution #########
 pl.figure(figsize=parf['figsize'], dpi=parf['dpi'])
 CS=pl.contour(coord[0], coord[1], Z, levels=[0.005, 0.02, 0.04, 0.06, 0.08])
-manual_loc=None
-pl.clabel(CS, inline=1, fontsize=10, inline_spacing=50, fmt='%1.3f', manual_locations=manual_loc)
+pl.clabel(CS, inline=1, fontsize=10, inline_spacing=50, fmt='%1.3f')
 
 pl.plot(phis[0](y_true)[0], phis[0](y_true)[1], '+r', label='$\Phi^1_{Q|Z}(\hat{y})$ (Kalman filter)')
 pl.plot(phis[2](y_true)[0], phis[2](y_true)[1], 'xr', label='$\Phi^{10}_{Q|Z}(\hat{y})$')
 pl.plot(mean[0], mean[1], 'ob', label='$\widetilde{\Phi}_{Q|Z}(\hat{y})$')
 
-# def get_ellipse_coor(A):
-#     eig, vecs=np.linalg.eigh(A)
-# 
-#     phis=np.linspace(0, 2*np.pi)
-#     x = lambda phi: eig[0]**0.5*np.cos(phi)
-#     y = lambda phi: eig[1]**0.5*np.sin(phi)
-#     coors = []
-#     for phi in phis:
-#         coor = vecs.dot(np.array([x(phi), y(phi)]))
-#         coors.append(coor)
-#     return np.array(coors).T
-#
-# coor = get_ellipse_coor(covar)
 pl.axis('square')
 pl.xlim(*xran)
 pl.ylim(*yran)

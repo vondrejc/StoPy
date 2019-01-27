@@ -13,7 +13,7 @@ import os
 import sys
 
 
-problem=0
+problem=1
 
 if __name__=='__main__':
     debug=0
@@ -21,7 +21,7 @@ else:
     debug=1
     sys.stdout = open(os.devnull, 'w')
 
-debug=1
+# debug=1
 print('debug={}'.format(debug))
 
 
@@ -142,14 +142,14 @@ fig=pl.figure(figsize=parf['figsize'], dpi=parf['dpi'])
 pl.plot(qpl, p.Y_Q(qpl), 'k-', label='observation operator $Y_Q(q)$')
 ypl=np.linspace(*p.fig.yran, num=1e3)
 mean_pdf, var_pdf=get_phi_pdf(y_nvals, Q, E, p.Y_Q, tol=p.bayes_pdf.tol)
-pl.plot(mean_pdf, y_nvals, 'bo-', label=label_mean, linewidth=2)
+pl.plot(mean_pdf, y_nvals, 'b+-', label=label_mean)
 
 markevery=50
-pl.plot(phis[0](ypl), ypl, 'gs--', label='$\Phi_{Q|Z}^1(y)$', markevery=markevery)
-pl.plot(phis[1](ypl), ypl, 'r+--', label='$\Phi_{Q|Z}^{5}(y)$', markevery=markevery)
-pl.plot(phis[2](ypl), ypl, 'mx--', label='$\Phi_{Q|Z}^{15}(y)$', markevery=markevery)
+pl.plot(phis[0](ypl), ypl, 'go--', label='$\Phi_{Q|Z}^1(y)$', markevery=markevery)
+# pl.plot(phis[1](ypl), ypl, 'rD--', markersize=5, label='$\Phi_{Q|Z}^{5}(y)$', markevery=markevery)
+pl.plot(phis[2](ypl), ypl, 'ms--', markersize=5, label='$\Phi_{Q|Z}^{15}(y)$', markevery=markevery)
 
-pl.plot(2*E.pdf(ypl), ypl, 'c:', label='PDF of error')
+pl.plot(2*E.pdf(ypl), ypl, 'c-.', label='PDF of error')
 pl.plot(qpl, 5*Q.pdf(qpl), 'b:', label='PDF of prior')
 
 pl.legend(loc='best')
@@ -167,9 +167,9 @@ if __name__=='__main__':
 fig=pl.figure(figsize=parf['figsize'], dpi=parf['dpi'])
 pl.plot(qpl, p.Y_Q(qpl), 'k-', label='observation operator $Y_Q(q)$')
 
-pl.plot(mean_pdf, y_nvals, 'b+-', label=label_mean, linewidth=2)
-pl.plot(mean_CdE, y_nvals, 'rx--', label=r'$\widetilde{\Phi}_{Q|Z}(y)$', linewidth=2)
-pl.plot(2*E.pdf(ypl), ypl, 'c:', label='PDF of error')
+pl.plot(mean_pdf, y_nvals, 'b+-', label=label_mean)
+pl.plot(mean_CdE, y_nvals, 'rx--', label=r'$\widetilde{\Phi}_{Q|Z}(y)$')
+pl.plot(2*E.pdf(ypl), ypl, 'c-.', label='PDF of error')
 pl.plot(qpl, 5*Q.pdf(qpl), 'b:', label='PDF of prior')
 
 pl.xlabel(xlabel)
