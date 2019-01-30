@@ -13,7 +13,7 @@ import os
 import sys
 
 
-problem=1
+problem=0
 
 if __name__=='__main__':
     debug=0
@@ -32,10 +32,10 @@ p=Struct(CdE=Struct(pint=1e4),
                     ),)
 
 if debug:
-    p+=Struct(CdE=Struct(pint=35),
+    p+=Struct(CdE=Struct(pint=1e3),
               bayes_pdf=Struct(tol=1e-3),
               fig=Struct(Npl=int(10),
-                         y_nvals=3,
+                         y_nvals=5,
                          ),)
 
 if problem in [0]:
@@ -126,7 +126,7 @@ for ii, y in enumerate(y_nvals):
 
 import matplotlib as mpl
 import matplotlib.pyplot as pl
-import figures_par
+from research_articles.CdE import figures_par
 
 parf=figures_par.set_pars(mpl)
 
@@ -135,21 +135,21 @@ qpl=np.linspace(*p.fig.xran, num=p.fig.Npl)
 ## MEAN - PCE-CE: ###############################################################################
 label_mean=r'$\mathrm{Mean}_{Q|Z}(y)=\Phi_{Q|Z}(y)$'
 label_covar=r'$\mathrm{Covar}_{Q|Z}(y)=\Phi_{\bar{Q}\otimes\bar{Q}|Z}(y)$'
-xlabel=r'Parameter $q$ / PDF of error (dotted lines)'
-ylabel=r'Measurement $y$ / PDF of prior (dotted lines)'
+xlabel=r'Parameter $q$ / PDF of error'
+ylabel=r'Measurement $y$ / PDF of prior'
 
 fig=pl.figure(figsize=parf['figsize'], dpi=parf['dpi'])
-pl.plot(qpl, p.Y_Q(qpl), 'k-', label='observation operator $Y_Q(q)$')
+pl.plot(qpl, p.Y_Q(qpl), 'k--', label='observation operator $Y_Q(q)$')
 ypl=np.linspace(*p.fig.yran, num=1e3)
 mean_pdf, var_pdf=get_phi_pdf(y_nvals, Q, E, p.Y_Q, tol=p.bayes_pdf.tol)
 pl.plot(mean_pdf, y_nvals, 'b+-', label=label_mean)
 
 markevery=50
-pl.plot(phis[0](ypl), ypl, 'go--', label='$\Phi_{Q|Z}^1(y)$', markevery=markevery)
-# pl.plot(phis[1](ypl), ypl, 'rD--', markersize=5, label='$\Phi_{Q|Z}^{5}(y)$', markevery=markevery)
-pl.plot(phis[2](ypl), ypl, 'ms--', markersize=5, label='$\Phi_{Q|Z}^{15}(y)$', markevery=markevery)
+pl.plot(phis[0](ypl), ypl, 'gs-', label='$\Phi_{Q|Z}^1(y)$', markevery=markevery)
+pl.plot(phis[1](ypl), ypl, 'ro-', markersize=10, label='$\Phi_{Q|Z}^{5}(y)$', markevery=markevery)
+pl.plot(phis[2](ypl), ypl, 'cx-', label='$\Phi_{Q|Z}^{15}(y)$', markevery=markevery)
 
-pl.plot(2*E.pdf(ypl), ypl, 'c-.', label='PDF of error')
+pl.plot(2*E.pdf(ypl), ypl, 'm-.', label='PDF of error')
 pl.plot(qpl, 5*Q.pdf(qpl), 'b:', label='PDF of prior')
 
 pl.legend(loc='best')
@@ -165,11 +165,11 @@ if __name__=='__main__':
 
 ## MEAN by CdE: ###############################################################################
 fig=pl.figure(figsize=parf['figsize'], dpi=parf['dpi'])
-pl.plot(qpl, p.Y_Q(qpl), 'k-', label='observation operator $Y_Q(q)$')
+pl.plot(qpl, p.Y_Q(qpl), 'k--', label='observation operator $Y_Q(q)$')
 
-pl.plot(mean_pdf, y_nvals, 'b+-', label=label_mean)
+pl.plot(mean_pdf, y_nvals, 'b+-', markersize=10, label=label_mean)
 pl.plot(mean_CdE, y_nvals, 'rx--', label=r'$\widetilde{\Phi}_{Q|Z}(y)$')
-pl.plot(2*E.pdf(ypl), ypl, 'c-.', label='PDF of error')
+pl.plot(2*E.pdf(ypl), ypl, 'm-.', label='PDF of error')
 pl.plot(qpl, 5*Q.pdf(qpl), 'b:', label='PDF of prior')
 
 pl.xlabel(xlabel)
@@ -186,7 +186,7 @@ if __name__=='__main__':
 ## Covariance by CdE #########################################################
 xis=np.copy(qpl)
 fig=pl.figure(figsize=parf['figsize'], dpi=parf['dpi'])
-pl.plot(var_pdf, y_nvals, 'b+-', label=label_covar)
+pl.plot(var_pdf, y_nvals, 'b+-', markersize=10, label=label_covar)
 pl.plot(covar_CdE, y_nvals, 'rx--', label=r'$\widetilde{\Phi}_{\bar{Q}\otimes\bar{Q}|Z}(y)$')
 
 pl.ylim(*p.fig.yran)

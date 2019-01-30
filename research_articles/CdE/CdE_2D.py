@@ -92,7 +92,7 @@ if not os.path.exists('figures/'):
 
 import matplotlib as mpl
 import matplotlib.pyplot as pl
-import figures_par
+from research_articles.CdE import figures_par
 parf=figures_par.set_pars(mpl)
 
 print('\nplotting...')
