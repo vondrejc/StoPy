@@ -64,9 +64,10 @@ class KL_Fourier():
         ct=Tensor(name='covar', val=covfun(grid_coor), order=0, N=self.N,
                   Y=self.puc_size, Fourier=False, fft_form='c', origin='c').shift()
         ct=ct.fourier()
+        assert(np.linalg.norm(ct.val.imag)<1e-12)
 
         if method in [-1]: # interpolation with trigpol
-            pass
+            ct.val=ct.val.real
         elif method in [0]: # approximation of covariance with constant funcs.
             h = self.puc_size/self.N
             Wraw = get_weights_con(h, self.N, self.puc_size)
