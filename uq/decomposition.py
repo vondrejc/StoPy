@@ -2,9 +2,6 @@
 This module use FFTHomPy project from https://github.com/vondrejc/FFTHomPy
 """
 from __future__ import division
-import matplotlib.pyplot as pl
-from matplotlib.cm import coolwarm
-from mpl_toolkits.mplot3d import axes3d
 
 import numpy as np
 from ffthompy.tensors import Tensor
@@ -46,6 +43,15 @@ class KL_Fourier():
             self.covfun=Expcov(**cov_pars)
         elif covfun in [2]:
             self.covfun=Sexpcov(**cov_pars)
+#         elif covfun in [10]: # piecewise constant
+#             def pw_const(d):
+#                 np.abs(d)<0
+#                 return
+#             self.covfun=pw_const
+        elif covfun in [11]: # piecewise bilinear
+            def pw_bilf(d):
+                return np.maximum(1-np.abs(d)/0.4, np.zeros_like(d))
+            self.covfun=pw_bilf
         else:
             raise ValueError("covfun in KL_Fourier")
 
@@ -196,14 +202,36 @@ class KL_Fourier():
         pl.show()
 
 if __name__=='__main__':
-    dim=2
-    kl=KL_Fourier(covfun=1, cov_pars={'rho':0.15}, N=5*3**3*np.ones(dim, dtype=np.int),
+    import matplotlib as mpl
+    import matplotlib.pyplot as pl
+    from matplotlib.cm import coolwarm
+    from mpl_toolkits.mplot3d import axes3d
+    from research_articles.CdE import figures_par
+    parf=figures_par.set_pars(mpl)
+    dim=1
+    covfun=1
+    kl=KL_Fourier(covfun=covfun, cov_pars={'rho':0.15}, N=5*3**6*np.ones(dim, dtype=np.int),
                   puc_size=np.ones(dim))
-#     kl.calc_modes(relval=1e-1)
-    kl.calc_modes(relerr=0.1)
-    if dim==2:
-    #    kl.calc_modes()
-    #    kl.plot_mode(n=15)
-#         kl.plot_cov(full=False)
+    kl.calc_modes(relval=1e-1, method=1)
+    ind=kl.ct.mean_index()
+    sz=2
+    slc=tuple([slice(ind[i]-sz,ind[i]+sz+1) for i in range(dim)])
+    print(kl.ct)
+    print(kl.ct.val[slc])
+#     print(kl.ct.val)
+
+    kl=KL_Fourier(covfun=covfun, cov_pars={'rho':0.15}, N=5*3**1*np.ones(dim, dtype=np.int),
+                  puc_size=np.ones(dim))
+
+    for method in [-1,1]:
+        kl.calc_modes(relerr=0.1, method=method)
+        ind=kl.ct.mean_index()
+        slc=tuple([slice(ind[i]-sz,ind[i]+sz+1) for i in range(dim)])
+#         print(ind)
+#         print(slc)
+        print(kl.ct)
+        print(kl.ct.val[slc])
+
+    if dim in [1,2]:
         kl.plot_cov(full=True)
     print('END')
