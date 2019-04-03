@@ -104,7 +104,7 @@ class KL_Fourier():
         # making flags of basis functions
         bas_type=(frq[0]>0)
         unknown=np.where(frq[0]==0)[0]
-        for ii in range(1,dim):
+        for ii in range(1,self.dim):
             bas_type[unknown]=frq[ii, unknown]>0
             unknown=np.where(frq[ii, unknown]==0)[0]
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-i#mport matplotlib.pyplot as pl
+#mport matplotlib.pyplot as pl
 import matplotlib.pylab as plt
 
 import numpy as np
