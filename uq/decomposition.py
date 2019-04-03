@@ -32,8 +32,8 @@ class KL_Fourier():
         # defining Fourier basis functions
         coef=2*np.pi*1j
         scal= lambda xi, x: np.einsum('i,i...', xi, x)
-        self.bfun=[lambda xi, x: 0.5*(np.exp(coef*scal(xi,x))+np.exp(coef*scal(xi,x))).real,
-                   lambda xi, x: 0.5*(np.exp(coef*scal(xi,x))-np.exp(coef*scal(xi,x))).imag]
+        self.bfun=[lambda xi, x: (np.exp(coef*scal(xi,x))+np.exp(coef*scal(xi,x))).real,
+                   lambda xi, x: (np.exp(coef*scal(xi,x))-np.exp(coef*scal(xi,x))).imag]
 
         # covariances
         if callable(covfun):
@@ -127,7 +127,7 @@ class KL_Fourier():
     def kl_cov(self, x, full=False):
         # Constructs the covariance matrix using spectral decomposition
         x=np.array(x)
-        Z=np.zeros_like(x[0])*self.ct.mean() # preallocation
+        Z=np.ones_like(x[0])*self.ct.mean() # preallocation
         if not full:
             for ii in range(self.modes.n_kl):
                 Z+=self.mode_fun(ii, x)
@@ -163,9 +163,9 @@ class KL_Fourier():
         dim=self.N.size
         fig=pl.figure(0)
         if dim==1:
-            pl.plot(coord[0], Zpl, label='cov_function')
-            pl.plot(coord[0], self.kl_cov(coord, full=True), label='app. cov-fun full')
-            pl.plot(coord[0], self.kl_cov(coord, full=False), label='app. cov-fun')
+            pl.plot(coord[0], Zpl, 'k-', label='cov function')
+            pl.plot(coord[0], self.kl_cov(coord, full=True), 'b--', label='app. cov-fun full')
+            pl.plot(coord[0], self.kl_cov(coord, full=False), 'r-.', label='app. cov-fun')
             pl.legend(loc='best')
         elif dim==2:
             ax=fig.add_subplot(111, projection='3d')
@@ -181,8 +181,8 @@ class KL_Fourier():
                 ax=fig.add_subplot(111, projection='3d')
                 ax.plot_surface(coord[0], coord[1], Zpl2, rstride=1, cstride=1,
                                 cmap=coolwarm, linewidth=0, antialiased=False)
-                ax.set_xlabel('$x_1$')
-                ax.set_ylabel('$x_2$')
+                ax.set_xlabel(r'$x_1$')
+                ax.set_ylabel(r'$x_2$')
                 ax.set_title('Covariance full approx.')
 
             fig=pl.figure(2)
@@ -190,9 +190,9 @@ class KL_Fourier():
             ax=fig.add_subplot(111, projection='3d')
             ax.plot_surface(coord[0], coord[1], Zpl2, rstride=1, cstride=1,
                             cmap=coolwarm, linewidth=0, antialiased=False)
-            ax.set_xlabel('$x_1$')
-            ax.set_ylabel('$x_2$')
-            ax.set_title('Covariance reduced approx.')
+            ax.set_xlabel(r'$x_1$')
+            ax.set_ylabel(r'$x_2$')
+            ax.set_title(r'Covariance reduced approx.')
         pl.show()
 
 if __name__=='__main__':
