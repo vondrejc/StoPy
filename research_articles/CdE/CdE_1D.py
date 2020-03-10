@@ -24,7 +24,7 @@ else:
 # debug=1
 print('debug={}'.format(debug))
 
-
+debug=1
 p=Struct(CdE=Struct(pint=1e4),
          bayes_pdf=Struct(tol=1e-8),
          fig=Struct(Npl=int(1e2),
@@ -140,7 +140,7 @@ ylabel=r'Measurement $y$ / PDF of prior'
 
 fig=pl.figure(figsize=parf['figsize'], dpi=parf['dpi'])
 pl.plot(qpl, p.Y_Q(qpl), 'k--', label='observation operator $Y_Q(q)$')
-ypl=np.linspace(*p.fig.yran, num=1e3)
+ypl=np.linspace(*p.fig.yran, num=int(1e3))
 mean_pdf, var_pdf=get_phi_pdf(y_nvals, Q, E, p.Y_Q, tol=p.bayes_pdf.tol)
 pl.plot(mean_pdf, y_nvals, 'b+-', label=label_mean)
 
